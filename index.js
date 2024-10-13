@@ -3,10 +3,16 @@ const app = express();
 const port = 3000;
 const { Client } = require("@notionhq/client");
 const axios = require('axios');
+require('dotenv').config();
 
-const SOURCES_DATABASE_ID = '11e657f5227b807184cfe810331daf18'
-const POSTS_DATABASE_ID = '11e657f5227b80d9b9afc3e9119a1c51'
-const NOTION_TOKEN = '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'
+const LINKS_DATABASE_ID = process.env.LINKS_DATABASE_ID;
+const SOURCES_DATABASE_ID = process.env.SOURCES_DATABASE_ID;
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+
+if (!LINKS_DATABASE_ID || !SOURCES_DATABASE_ID || !NOTION_TOKEN) {
+  console.error('Missing environment variables. Please check your .env file.');
+  process.exit(1);
+}
 
 // Initializing a client
 const notion = new Client({
@@ -16,11 +22,11 @@ const notion = new Client({
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
-app.get('/notionDB', async (req, res) => {
+app.get('/scrapeNotionLinks', async (req, res) => {
   try {
     // 1. Query the Notion database for unscraped records
     const response = await notion.databases.query({
-      database_id: SOURCES_DATABASE_ID,
+      database_id: LINKS_DATABASE_ID,
       filter: {
         property: 'Scraped',
         checkbox: {
@@ -29,39 +35,40 @@ app.get('/notionDB', async (req, res) => {
       }
     });
 
-    const unscrapedRecords = response.results;
+    console.log('properties', response.results[0].properties)
 
-    console.log(unscrapedRecords.properties)
+    const unscrapedLinks = response.results;
+    if (unscrapedLinks.length === 0) {
+      res.status(200).send('No unscraped records found');
+      return;
+    }
 
-    for (const record of unscrapedRecords) {
-      const url = record.properties.URL.rich_text[0].plain_text;
+    for (const link of unscrapedLinks) {
+      const url = link.properties.URL.title[0].plain_text;
 
       // 2. Call the server at localhost:3001/getData
       const serverResponse = await axios.post('http://127.0.0.1:3001/getData', { url });
+      if (serverResponse.status !== 200) {
+        console.error(`Error fetching data for ${url}: ${serverResponse.statusText}`);
+        continue;
+      }
 
       // 3. Save the response as a new page in the POSTS_DATABASE_ID
       await notion.pages.create({
         parent: {
-          database_id: POSTS_DATABASE_ID
+          database_id: SOURCES_DATABASE_ID
         },
         properties: {
-          Title: {
+          Name: {
             title: [{ text: { content: serverResponse.data['Submission Title'] } }]
-          },
-          URL: {
-            url: url
-          },
-          Author: {
-            rich_text: [{ text: { content: serverResponse.data.Username } }]
-          },
-          // Add more properties as needed
+          }
         },
         children: formatBlocks(serverResponse.data, url)
       });
 
       // 4. Update the original record to mark as scraped
       await notion.pages.update({
-        page_id: record.id,
+        page_id: link.id,
         properties: {
           Scraped: {
             checkbox: true

@@ -1,13 +1,18 @@
 from flask import Flask, request, jsonify
 import praw
 import json
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
-# Initialize Reddit instance with credentials
+# Initialize Reddit instance with credentials from environment variables
 reddit = praw.Reddit(
-    client_id="Cyh84o1R4ERLEp1Xc-9XdQ",
-    client_secret="SjhoePjeZ7sejUkKjOyZF_uW5Yzs2A",
+    client_id=os.getenv("REDDIT_CLIENT_ID"),
+    client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36"
 )
 
