@@ -9,6 +9,10 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# Check if environment variables are set
+if not os.getenv("REDDIT_CLIENT_ID") or not os.getenv("REDDIT_CLIENT_SECRET"):
+    raise ValueError("Missing Secrets: REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET, Create a Reddit App and add values to the .env file")
+
 # Initialize Reddit instance with credentials from environment variables
 reddit = praw.Reddit(
     client_id=os.getenv("REDDIT_CLIENT_ID"),

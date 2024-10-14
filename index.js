@@ -9,7 +9,7 @@ const {
 } = process.env
 
 if (!LINKS_DATABASE_ID || !SOURCES_DATABASE_ID || !NOTION_TOKEN) {
-  console.error('Missing environment variables. Please check your .env file.');
+  console.error('Missing LINKS_DATABASE_ID, SOURCES_DATABASE_ID, and/or NOTION_TOKEN. Create a Notion Integration and add values to the .env file.');
   process.exit(1);
 }
 
