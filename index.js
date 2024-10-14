@@ -1,6 +1,3 @@
-const express = require('express');
-const app = express();
-const port = 3000;
 const { Client } = require("@notionhq/client");
 const axios = require('axios');
 require('dotenv').config();
