@@ -5,9 +5,11 @@ const { Client } = require("@notionhq/client");
 const axios = require('axios');
 require('dotenv').config();
 
-const LINKS_DATABASE_ID = process.env.LINKS_DATABASE_ID;
-const SOURCES_DATABASE_ID = process.env.SOURCES_DATABASE_ID;
-const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const {
+  LINKS_DATABASE_ID,
+  SOURCES_DATABASE_ID,
+  NOTION_TOKEN
+} = process.env
 
 if (!LINKS_DATABASE_ID || !SOURCES_DATABASE_ID || !NOTION_TOKEN) {
   console.error('Missing environment variables. Please check your .env file.');
@@ -22,7 +24,7 @@ const notion = new Client({
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
-app.get('/scrapeNotionLinks', async (req, res) => {
+app.get('/scrapeNotionLinks', async (_, res) => {
   try {
     // 1. Query the Notion database for unscraped records
     const response = await notion.databases.query({
@@ -156,15 +158,6 @@ function createTextBlock(content) {
     }
   };
 }
-
-// Route to handle POST requests to '/data'
-app.post('/data', (req, res) => {
-  console.log('Received request:');
-  console.log(req.body);  // Print the incoming JSON data to the console
-
-  // Send a response back to the client
-  res.status(200).send('Data received successfully');
-});
 
 // Start the server
 app.listen(port, () => {
