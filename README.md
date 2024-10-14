@@ -3,7 +3,7 @@
 ### 1. Copy Aaron Jack's Notion Blog Builder Template
 [Here](https://circular-conga-1d1.notion.site/AI-Blog-Builder-11e657f5227b80848224d4e97aaeba79?pvs=4)
 
-### 2. Create a Notion Integration & allow access to copied template
+### 2. Create a Notion Integration
 [Docs](https://www.notion.so/my-integrations)
 
 ### 3. Give the integration permission to your copied template
@@ -21,24 +21,17 @@ https://www.reddit.com/prefs/apps
 
 ### 7. Install Dependencies
 ```sh
-pip install -r requirements.txt
-npm i
+make -s install
 ```
 
 ### 8. Add Reddit URLs to the Sources Table in Notion
 You can also add custom docs / copy paste from other sources
 **Please use more than one so it is not blatant copying**
 
-### 9. Run both Python & JavaScript servers locally
+### 9. Run Script
 ```sh
-python main.py
-node index.js
+make -s run
 ```
 
-### 10. Send request to JS server to process links
-```sh
-curl http://localhost:3000/scrapeNotionLinks
-```
-
-### 11. Edit & Publish Drafts in Notion
+### 10. Edit & Publish Drafts in Notion
 Then you can deploy your site
