@@ -21,11 +21,7 @@ const notion = new Client({
   auth: NOTION_TOKEN,
 });
 
-// Middleware to parse incoming JSON requests
-app.use(express.json());
-
-app.get('/scrapeNotionLinks', async (_, res) => {
-  try {
+async function scrapeNotionLinks() {
     // 1. Query the Notion database for unscraped records
     const response = await notion.databases.query({
       database_id: LINKS_DATABASE_ID,
@@ -39,8 +35,8 @@ app.get('/scrapeNotionLinks', async (_, res) => {
 
     const unscrapedLinks = response?.results;
     if (!unscrapedLinks?.length) {
-      res.status(200).send('No unscraped records found');
-      return;
+      console.error('No unscraped records found');
+      return
     }
 
     for (const link of unscrapedLinks) {
@@ -76,13 +72,10 @@ app.get('/scrapeNotionLinks', async (_, res) => {
         }
       });
     }
-
-    res.status(200).send('Database updated successfully');
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('An error occurred while processing the request');
+    console.log('Process Completed')
   }
-});
+
+scrapeNotionLinks();
 
 // Function to format blocks according to the specified structure
 function formatBlocks(data, sourceUrl) {
@@ -158,8 +151,3 @@ function createTextBlock(content) {
     }
   };
 }
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
