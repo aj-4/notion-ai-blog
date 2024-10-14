@@ -35,10 +35,8 @@ app.get('/scrapeNotionLinks', async (req, res) => {
       }
     });
 
-    console.log('properties', response.results[0].properties)
-
-    const unscrapedLinks = response.results;
-    if (unscrapedLinks.length === 0) {
+    const unscrapedLinks = response?.results;
+    if (!unscrapedLinks?.length) {
       res.status(200).send('No unscraped records found');
       return;
     }
